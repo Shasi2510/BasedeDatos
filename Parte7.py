@@ -1,67 +1,74 @@
 import sqlite3
 
-# Conectar a la base de datos o crearla si no existe
-conn = sqlite3.connect('mi_base_de_datos.db')
+# Conectarse a la base de datos SQLite
+conn = sqlite3.connect('database.db')
 cursor = conn.cursor()
 
-# Crear una tabla si no existe
-cursor.execute('''
-    CREATE TABLE IF NOT EXISTS registros (
-        id INTEGER PRIMARY KEY,
-        nombre TEXT,
-        edad INTEGER
-    )
-''')
+# Crear la tabla 'items' si no existe
+cursor.execute('''CREATE TABLE IF NOT EXISTS items (
+                  id INTEGER PRIMARY KEY,
+                  nombre TEXT,
+                  descripcion TEXT
+                )''')
 conn.commit()
 
-def crear_registro():
-    nombre = input("Ingrese el nombre: ")
-    edad = int(input("Ingrese la edad: "))
-    cursor.execute('INSERT INTO registros (nombre, edad) VALUES (?, ?)', (nombre, edad))
+def crear_item():
+    nombre = input("Ingrese el nombre del item: ")
+    descripcion = input("Ingrese la descripción del item: ")
+    
+    cursor.execute("INSERT INTO items (nombre, descripcion) VALUES (?, ?)", (nombre, descripcion))
     conn.commit()
-    print("Registro creado con éxito!")
+    print("Item creado con éxito.")
 
-def leer_registros():
-    cursor.execute('SELECT * FROM registros')
-    registros = cursor.fetchall()
-    for registro in registros:
-        print(f"ID: {registro[0]}, Nombre: {registro[1]}, Edad: {registro[2]}")
+def listar_items():
+    cursor.execute("SELECT * FROM items")
+    items = cursor.fetchall()
+    
+    if not items:
+        print("No hay items en la base de datos.")
+    else:
+        for item in items:
+            print(f"ID: {item[0]}, Nombre: {item[1]}, Descripción: {item[2]}")
 
-def actualizar_registro():
-    id_actualizar = int(input("Ingrese el ID del registro que desea actualizar: "))
-    nuevo_nombre = input("Ingrese el nuevo nombre: ")
-    nueva_edad = int(input("Ingrese la nueva edad: "))
-    cursor.execute('UPDATE registros SET nombre=?, edad=? WHERE id=?', (nuevo_nombre, nueva_edad, id_actualizar))
+def obtener_item():
+    item_id = input("Ingrese el ID del item que desea obtener: ")
+    cursor.execute("SELECT * FROM items WHERE id=?", (item_id,))
+    item = cursor.fetchone()
+    
+    if item:
+        print(f"ID: {item[0]}, Nombre: {item[1]}, Descripción: {item[2]}")
+    else:
+        print("No se encontró ningún item con ese ID.")
+
+def eliminar_item():
+    item_id = input("Ingrese el ID del item que desea eliminar: ")
+    cursor.execute("DELETE FROM items WHERE id=?", (item_id,))
     conn.commit()
-    print("Registro actualizado con éxito!")
-
-def eliminar_registro():
-    id_eliminar = int(input("Ingrese el ID del registro que desea eliminar: "))
-    cursor.execute('DELETE FROM registros WHERE id=?', (id_eliminar,))
-    conn.commit()
-    print("Registro eliminado con éxito!")
+    print("Item eliminado con éxito.")
 
 while True:
-    print("\nMenú:")
-    print("1. Crear Registro")
-    print("2. Leer Registros")
-    print("3. Actualizar Registro")
-    print("4. Eliminar Registro")
+    print("\nOperaciones disponibles:")
+    print("1. Crear Item")
+    print("2. Listar Items")
+    print("3. Obtener Item por ID")
+    print("4. Eliminar Item por ID")
     print("5. Salir")
     
-    opcion = input("Seleccione una opción: ")
+    opcion = input("Seleccione una operación (1/2/3/4/5): ")
     
     if opcion == '1':
-        crear_registro()
+        crear_item()
     elif opcion == '2':
-        leer_registros()
+        listar_items()
     elif opcion == '3':
-        actualizar_registro()
+        obtener_item()
     elif opcion == '4':
-        eliminar_registro()
+        eliminar_item()
     elif opcion == '5':
         break
+    else:
+        print("Opción no válida. Por favor, seleccione una opción válida.")
 
-# Cerrar la conexión a la base de datos al salir
+# Cerrar la conexión a la base de datos al salir del programa
 conn.close()
 

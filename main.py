@@ -6,7 +6,6 @@ class User(Model):
     name = fields.CharField(max_length=255)
     email = fields.CharField(max_length=255)
 
-
 async def main():
     await Tortoise.init(
         db_url='sqlite://db.sqlite3',
